@@ -366,6 +366,81 @@ void Image::test(  )
     m_width = m_bitmapData[0].size() / m_pixelSize;
 }
 
+void Image::fsd(  )
+{
+    
+
+
+
+    std::vector<std::vector<uint8_t>> vecNewBitmap;
+    vecNewBitmap.reserve( m_height );
+
+    // to grayscale
+    for ( size_t row = 0; row < m_height; ++row )
+    {
+        std::vector<uint8_t> newLine;
+        newLine.reserve( m_width  );
+        for ( size_t col = 0; col < m_width * m_pixelSize; col+=3 )
+        {
+            newLine.push_back( (m_bitmapData[row][col] + m_bitmapData[row][col+1]  + m_bitmapData[row][col+2] )/3 );
+        }        
+        vecNewBitmap.push_back( newLine );
+    }
+
+    //fsd
+    uint8_t newPixel;
+    uint8_t oldPixel;
+    uint8_t error;
+    for ( size_t row = 0; row < m_height; ++row )
+    {
+        std::vector<uint8_t> newLine;
+        newLine.reserve( m_width * m_pixelSize  );
+    
+        for ( size_t col = 0; col < m_width; ++col )
+        {
+            if( col == 0 || col == m_width - 1 || (row == m_height -1)  ){
+                vecNewBitmap[row][col] = 0XFF;
+            }else{
+                oldPixel = vecNewBitmap[row][col];
+                newPixel =  oldPixel <= 128 ? 0XFF : 0X00;
+                error = ( oldPixel - newPixel );
+                vecNewBitmap[row     ][col + 1 ] += error*7/16;
+                vecNewBitmap[row + 1 ][col + 1 ] += error*1/16;
+                vecNewBitmap[row + 1 ][col     ] += error*5/16; 
+                vecNewBitmap[row + 1 ][col - 1 ] += error*3/16; 
+                vecNewBitmap[row][col] = newPixel;
+            }   
+
+        }        
+    }
+
+    std::vector<std::vector<uint8_t>> vecNewBitmapD;
+    vecNewBitmapD.reserve( m_height );
+    // to  3 chanels
+    for ( size_t row = 0; row < m_height; ++row )
+    {
+        std::vector<uint8_t> newLine;
+        newLine.reserve( m_width * m_pixelSize  );
+        for ( size_t col = 0; col < m_width; ++col )
+        {
+            newLine.push_back( vecNewBitmap[row][col]);
+            newLine.push_back( vecNewBitmap[row][col]);
+            newLine.push_back( vecNewBitmap[row][col]);
+        }        
+        vecNewBitmapD.push_back( newLine );
+    }
+
+
+
+
+
+
+    m_pixelSize=3;
+    m_bitmapData = vecNewBitmapD;
+    m_height = m_bitmapData.size();
+    m_width = m_bitmapData[0].size() / m_pixelSize;
+}
+
 void Image::expand( size_t newWidth )
 {
     if ( newWidth <= m_width )

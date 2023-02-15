@@ -69,6 +69,7 @@ namespace marengo
             void shrink(size_t newWidth);
 
             void test();
+            void fsd();
 
             // Expand (resize larger). Simply pads out pixels.
             // Does nothing if the specified new width is less than, or

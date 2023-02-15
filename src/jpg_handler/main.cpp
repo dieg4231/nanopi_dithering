@@ -33,10 +33,10 @@ int main( int argc, char* argv[] )
 
         // Shrink proportionally to a specific width (in px)
         //img.shrink( 160 );
-        img.test(  );
+        img.fsd(  );
 
         // Display the image in ASCII, just for fun.
-        std::size_t height = img.getHeight();
+       /* std::size_t height = img.getHeight();
         std::size_t width  = img.getWidth();
         for ( std::size_t y = 0; y < height; ++y )
         {
@@ -53,10 +53,10 @@ int main( int argc, char* argv[] )
         // Pixel "Size" is 3 bytes for colour images (i.e. R,G, & B)
         // and 1 byte for monochrome.
         std::cout << "\nImage px sz : " << img.getPixelSize();
-        std::cout << std::endl;
+        std::cout << std::endl;*/
 
 
-        img.save("result.jpg",100);
+        img.save("result.jpg",atoi(argv[2]));
         return 0;
     }
     catch( const std::exception& e )
