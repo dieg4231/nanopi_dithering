@@ -70,6 +70,7 @@ namespace marengo
 
             void test();
             void fsd();
+            void fsdColor(  );
 
             // Expand (resize larger). Simply pads out pixels.
             // Does nothing if the specified new width is less than, or

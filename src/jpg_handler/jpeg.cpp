@@ -7,6 +7,21 @@
 #include <string>
 #include <vector>
 
+#include <cmath>
+
+
+#define BLUE_H 0X38488d
+#define GREEN_H 0X547a49
+#define RED_H 0X9f4b4e
+#define BLACK_H 0X242933
+#define YELLOW_H 0Xc9d168
+#define ORANGE_H 0Xb55d4c
+#define WHITE_H 0Xd3dde4
+
+enum colors { BLUE = 0, GREEN, RED, BLACK, YELLOW, ORANGE, WHITE };
+
+
+
 namespace marengo
 {
 namespace jpeg
@@ -437,6 +452,124 @@ void Image::fsd(  )
 
     m_pixelSize=3;
     m_bitmapData = vecNewBitmapD;
+    m_height = m_bitmapData.size();
+    m_width = m_bitmapData[0].size() / m_pixelSize;
+}
+
+void Image::fsdColor(  )
+{
+     std::vector<std::vector<uint8_t>>  palet = { {0X38,0X48,0X8d}, 
+                                                    {0X54,0X7a,0X49},
+                                                    {0X9f,0X4b,0X4e},
+                                                    {0X24,0X29,0X33},
+                                                    {0Xc9,0Xd1,0X68},
+                                                    {0Xb5,0X5d,0X4c},
+                                                    {0Xd3,0Xdd,0Xe4}
+                                                };
+  
+    int16_t deltaR;
+    int16_t deltaG;
+    int16_t deltaB;
+    int16_t rHat;
+
+    int idColor;
+    float auxDistance;
+    float shortDistance;
+    
+
+
+    //fsd_color
+    int16_t newPixelR;
+    int16_t newPixelG;
+    int16_t newPixelB;
+    int16_t oldPixelR;
+    int16_t oldPixelG;
+    int16_t oldPixelB;
+    int16_t errorR;
+    int16_t errorG;
+    int16_t errorB;
+    for ( size_t row = 0; row < m_height; ++row )
+    {    
+        for ( size_t col = 0; col < m_width * m_pixelSize ; col+=3 )
+        {
+            //srgb
+            uint8_t r ;
+            uint8_t g ;
+            uint8_t b ;
+            
+
+            if( col == 0 || col >= ((m_width * m_pixelSize )- m_pixelSize) || (row == m_height -1)  ){
+                m_bitmapData[row][col] = palet[0][0];
+                m_bitmapData[row][col+1] = palet[0][1];
+                m_bitmapData[row][col+2] = palet[0][2];
+            }else{
+
+                r = m_bitmapData[row][col];
+                g = m_bitmapData[row][col + 1];
+                b = m_bitmapData[row][col + 2];
+
+                //Getting new color from palet by srgb distance
+                for(int idxPalet = 0; idxPalet < 7; idxPalet++){
+                    deltaR = r - palet[idxPalet][0];
+                    deltaG = g - palet[idxPalet][1];
+                    deltaB = b - palet[idxPalet][2];
+                    rHat = (r + palet[idxPalet][0]) / 2;
+
+                    if(rHat < 128){
+                        auxDistance = sqrt( (2 * deltaR*deltaR) + (4 * deltaG*deltaG) + (3 * deltaB*deltaB) );
+                    }else{
+                        auxDistance = sqrt( (3 * deltaR*deltaR) + (4 * deltaG*deltaG) + (2 * deltaB*deltaB) );
+                    }
+
+                    if(idxPalet == 0){
+                        shortDistance = auxDistance;
+                        idColor = idxPalet;
+                    }else{
+                        if(shortDistance > auxDistance){
+                            shortDistance = auxDistance;
+                            idColor = idxPalet;
+                        }
+                    }
+                }
+
+
+                oldPixelR = m_bitmapData[row][col];
+                oldPixelG = m_bitmapData[row][col + 1];
+                oldPixelB = m_bitmapData[row][col + 2];
+
+                newPixelR = palet[idColor][0];
+                newPixelG = palet[idColor][1];
+                newPixelB = palet[idColor][2];
+
+                errorR = oldPixelR - newPixelR;
+                errorG = oldPixelG - newPixelG;
+                errorB = oldPixelB - newPixelB;
+
+                m_bitmapData[row     ][col + 0 + 3] += errorR*7/16;
+                m_bitmapData[row     ][col + 1 + 3] += errorG*7/16;
+                m_bitmapData[row     ][col + 2 + 3] += errorB*7/16;
+
+                m_bitmapData[row + 1 ][col + 0 + 3 ] += errorR*1/16;
+                m_bitmapData[row + 1 ][col + 1 + 3 ] += errorG*1/16;
+                m_bitmapData[row + 1 ][col + 2 + 3 ] += errorB*1/16;
+                
+                m_bitmapData[row + 1 ][col  + 0    ] += errorR*5/16; 
+                m_bitmapData[row + 1 ][col  + 1    ] += errorG*5/16; 
+                m_bitmapData[row + 1 ][col  + 2    ] += errorB*5/16; 
+
+                m_bitmapData[row + 1 ][col - 0 - 3 ] += errorR*3/16; 
+                m_bitmapData[row + 1 ][col + 1 - 3 ] += errorG*3/16; 
+                m_bitmapData[row + 1 ][col + 2 - 3 ] += errorB*3/16; 
+
+                m_bitmapData[row][col] = newPixelR;
+                m_bitmapData[row][col+1] = newPixelG;
+                m_bitmapData[row][col+2] = newPixelB;
+            }        
+        }
+    }
+
+    m_pixelSize=3;
+    m_bitmapData = m_bitmapData;
     m_height = m_bitmapData.size();
     m_width = m_bitmapData[0].size() / m_pixelSize;
 }

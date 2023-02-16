@@ -33,7 +33,7 @@ int main( int argc, char* argv[] )
 
         // Shrink proportionally to a specific width (in px)
         //img.shrink( 160 );
-        img.fsd(  );
+        img.fsdColor(  );
 
         // Display the image in ASCII, just for fun.
        /* std::size_t height = img.getHeight();
@@ -56,7 +56,8 @@ int main( int argc, char* argv[] )
         std::cout << std::endl;*/
 
 
-        img.save("result.jpg",atoi(argv[2]));
+       // img.save("result.jpg",atoi(argv[2]));
+        img.savePpm("result.jpg");
         return 0;
     }
     catch( const std::exception& e )
