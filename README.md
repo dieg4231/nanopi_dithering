@@ -1,2 +1,2 @@
 # nanopi_dithering
-Take photo, process and sabe dithering effect.
+Take photo, process and save dithering effect.
